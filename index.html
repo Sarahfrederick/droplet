@@ -118,7 +118,7 @@ td.auto{font-weight:700;text-align:right;white-space:nowrap;color:var(--oil)}
  <h1>드랍렛 탐구를 시작해요</h1>
  <p class="lead">이름이나 학번은 적지 않아요. 적은 내용은 이 기기에만 저장되고, 마지막에 PDF로 저장해 제출합니다.</p>
  <div class="card">
-  <label class="q" for="f_group">모둠 (적지 않아도 돼요)</label><input type="text" id="f_group" data-k="group" autocomplete="off" placeholder="예: 3모둠">
+  <label class="q" for="f_group">모둠</label><input type="text" id="f_group" data-k="group" autocomplete="off" placeholder="예: 3모둠">
   <div class="btns"><button class="btn main" id="startBtn" type="button">시작해요</button><button class="btn" id="clearBtn" type="button">처음부터 새로 쓰기</button></div>
   <div class="msg" id="startMsg"></div>
   <p class="hint">다른 친구가 쓰던 기기라면 [처음부터 새로 쓰기]를 눌러요.</p>
@@ -506,7 +506,7 @@ document.addEventListener('input',onInput);document.addEventListener('change',on
 
 /* 시작 · 새로 쓰기 */
 function setWho(){$('who').textContent=S.group?S.group:'';}
-$('startBtn').onclick=function(){save();go(S.step&&S.step>0?S.step:1);};
+$('startBtn').onclick=function(){if(!String(S.group||'').replace(/\s/g,'')){$('startMsg').textContent='모둠을 먼저 적어요.';$('f_group').focus();return;}save();go(S.step&&S.step>0?S.step:1);};
 var clearArm=false;
 $('clearBtn').onclick=function(){if(!clearArm){clearArm=true;$('startMsg').textContent='한 번 더 누르면 이 기기에 적힌 내용이 모두 지워져요.';setTimeout(function(){clearArm=false;},5000);return;}
  clearArm=false;try{localStorage.removeItem(KEY);}catch(e){}S=blank();fill();calc();setWho();renderChips();$('startMsg').textContent='새 활동지로 시작했어요.';};
