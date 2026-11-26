@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>드랍렛 탐구 활동지</title>
+<style>
+/* VOICE: 실험 노트처럼 차분하고 또렷하게, 학생이 바로 쓰는 도구
+   IDEA: 랩 노트 한 권 — 단계마다 한 쪽, 내 생각이 먼저 쓰이고 AI의 답은 옆에 붙인 메모
+   PICTURE: 쓰는 칸 자체가 그림, 결과 단계에서 Δh–평균 면적 그래프가 살아난다
+   COLOUR and TYPE: 종이색 바탕, 잉크 남색, 샘플 빨강과 오일 청록 두 가지 표지색, 시스템 한글 글꼴
+   LAYOUT: 위 진행 막대, 가운데 한 단 820px, 아래 이전·다음 */
+:root{--bg:#F3F5F4;--paper:#FFFFFF;--ink:#0F2A3D;--body:#3D5260;--line:#D3DEE1;--soft:#E7EFF1;
+--sample:#C8472F;--sampleSoft:#FBE9E4;--oil:#1B6F7D;--oilSoft:#E1F1F3;--ok:#2F6B3A}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0;background:var(--bg);color:var(--ink)}
+body{font:16px/1.6 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif;overflow-x:hidden;-webkit-text-size-adjust:100%}
+a{color:var(--oil)}
+.top{position:sticky;top:0;z-index:5;background:var(--ink);color:#F4F7F6}
+.topin{max-width:980px;margin:0 auto;padding:10px 16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.brand{font-weight:800;font-size:17px;flex:1 1 220px}
+.brand small{display:block;font-weight:500;font-size:13px;color:#BFD3DA}
+.who{font-size:14px;color:#BFD3DA}
+.tbtn{background:transparent;border:1.5px solid #6FA9B4;color:#F4F7F6;border-radius:10px;padding:8px 14px;font:inherit;font-size:14px;cursor:pointer;min-height:40px}
+.steps{max-width:980px;margin:0 auto;padding:0 16px 10px;display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.chip{flex:none;border:0;border-radius:999px;padding:6px 12px;font:inherit;font-size:13px;background:#1E4258;color:#CFE0E5;cursor:pointer;min-height:34px}
+.chip.on{background:#F4F7F6;color:var(--ink);font-weight:700}
+.chip.done:after{content:" ✓"}
+main{max-width:860px;margin:0 auto;padding:20px 16px 120px}
+.page{display:none}.page.on{display:block}
+h1{font-size:clamp(26px,4vw,36px);line-height:1.2;margin:6px 0 4px;letter-spacing:-.01em}
+h2{font-size:20px;margin:0 0 6px}
+.lead{color:var(--body);margin:0 0 16px}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px}
+.tag{font-size:13px;font-weight:700;border-radius:6px;padding:2px 8px}
+.t-noai{background:var(--ink);color:#fff}.t-ai{background:var(--oil);color:#fff}.t-me{background:var(--soft);color:var(--ink)}.t-grp{background:var(--sampleSoft);color:var(--sample)}
+.todo{background:var(--paper);border:1.5px solid var(--line);border-radius:14px;padding:12px 16px;margin:0 0 16px}
+.todo>b{display:block;font-size:14px;color:var(--oil)}
+.todo ol{margin:4px 0 0;padding-left:20px;color:var(--body)}
+.card{background:var(--paper);border:1.5px solid var(--line);border-radius:16px;padding:18px;margin:0 0 16px}
+.card.ai{border-color:#9CCAD2;background:#F8FCFC}
+.card.mine{border-color:#E8B7AA}
+.sub{font-size:14px;font-weight:700;color:var(--oil);margin:0 0 6px}
+label.q{display:block;font-weight:700;margin:14px 0 6px}
+label.q:first-child{margin-top:0}
+.hint{font-size:14px;color:var(--body);margin:4px 0 0}
+input[type=text],input[type=number],textarea,select{width:100%;font:inherit;font-size:16px;color:var(--ink);background:#FCFDFD;border:1.5px solid var(--line);border-radius:10px;padding:10px 12px}
+textarea{min-height:88px;resize:vertical}
+input:focus,textarea:focus,select:focus,button:focus{outline:3px solid #8CCBD6;outline-offset:1px}
+.radios{display:flex;gap:8px;flex-wrap:wrap}
+.radios label{flex:1 1 140px;display:flex;align-items:center;gap:8px;border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;cursor:pointer;background:#FCFDFD;min-height:46px}
+.radios input{width:20px;height:20px;margin:0}
+.radios label.sel{border-color:var(--ink);background:var(--soft);font-weight:700}
+.row2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+.btn{font:inherit;font-size:15px;font-weight:700;border-radius:12px;padding:10px 16px;min-height:44px;cursor:pointer;border:1.5px solid var(--ink);background:var(--paper);color:var(--ink)}
+.btn.main{background:var(--ink);color:#fff}
+.btn.oil{background:var(--oil);border-color:var(--oil);color:#fff;text-decoration:none;display:inline-flex;align-items:center}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.prompt{min-height:240px;font-size:15px;background:#F1F7F8}
+.lock{border:1.5px dashed var(--sample);color:var(--sample);border-radius:12px;padding:12px;font-weight:700;background:var(--sampleSoft)}
+.msg{font-size:14px;font-weight:700;color:var(--ok);min-height:20px;margin-top:6px}
+.snap{background:var(--soft);border-radius:12px;padding:10px 12px;font-size:15px;white-space:pre-wrap}
+.snap b{display:block;font-size:13px;color:var(--oil)}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:15px}
+th{background:var(--ink);color:#fff;text-align:left;font-weight:700;padding:8px;white-space:nowrap}
+td{border-bottom:1px solid var(--line);padding:6px;vertical-align:middle}
+td input,td select{padding:8px;min-width:72px}
+td.auto{font-weight:700;text-align:right;white-space:nowrap;color:var(--oil)}
+.cmp td{padding:10px 8px}
+.fig{position:relative;height:300px;background:#FCFDFD;border:1.5px solid var(--line);border-radius:12px;margin-top:12px}
+.fig svg{position:absolute;left:0;top:0;width:100%;height:100%}
+.navbar{position:fixed;left:0;right:0;bottom:0;background:rgba(243,245,244,.96);border-top:1px solid var(--line);z-index:4}
+.navin{max-width:860px;margin:0 auto;padding:10px 16px;display:flex;justify-content:space-between;gap:8px}
+.toast{position:fixed;left:50%;bottom:76px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:12px;font-size:14px;max-width:92vw;display:none;z-index:9}
+.toast button{margin-left:10px;background:none;border:1px solid #9CC;color:#fff;border-radius:8px;padding:2px 8px;font:inherit;font-size:13px}
+.claims td{vertical-align:top}
+.claims textarea{min-height:64px}
+/* 수업 화면 */
+#teach{position:fixed;left:0;top:0;right:0;bottom:0;background:var(--ink);color:#F4F7F6;z-index:20;display:none;overflow:auto}
+#teach .in{max-width:1200px;margin:0 auto;padding:4vh 5vw}
+#teach h3{font-size:clamp(22px,2.4vw,30px);color:#6FD0DE;margin:0 0 8px}
+#teach h4{font-size:clamp(34px,5vw,64px);line-height:1.15;margin:0 0 3vh}
+#teach li{font-size:clamp(20px,2.4vw,32px);line-height:1.5;color:#D7E5E9;margin-bottom:1vh}
+#teach .hold{margin-top:3vh;font-size:clamp(18px,2vw,26px);background:#173A52;border:2px solid #2C5C78;color:#F4F7F6;border-radius:14px;padding:14px 20px;cursor:pointer;-webkit-user-select:none;user-select:none}
+#teach .ans{display:none;margin-top:2vh;font-size:clamp(20px,2.4vw,32px);color:#FFD8CC;white-space:pre-wrap}
+#teach .tnav{display:flex;gap:10px;justify-content:space-between;margin-bottom:3vh}
+#teach .tnav button{background:#173A52;color:#fff;border:1.5px solid #2C5C78;border-radius:10px;padding:10px 16px;font:inherit;cursor:pointer;min-height:44px}
+#printView{display:none}
+@media (max-width:600px){.row2{grid-template-columns:minmax(0,1fr)}.who{width:100%}.card{padding:14px}}
+@media print{
+ body{background:#fff}
+ .top,.navbar,main,#teach,.toast{display:none!important}
+ #printView{display:block;font-size:12pt;color:#000}
+ #printView h1{font-size:18pt}#printView h2{font-size:13pt;margin:14pt 0 4pt;border-bottom:1px solid #999}
+ #printView table{font-size:10pt}#printView th{background:#eee;color:#000}
+ #printView .pv{white-space:pre-wrap;margin:0 0 6pt}
+}
+</style>
+</head>
+<body>
+
+<div class="top">
+ <div class="topin">
+  <div class="brand">드랍렛 탐구 활동지 · AI로 검증하기<small>Easy Drop Kit · 수두차에 따른 드랍렛 생성</small></div>
+  <div class="who" id="who"></div>
+  <button class="tbtn" id="teachBtn" type="button">수업 화면</button>
+ </div>
+ <div class="steps" id="chips"></div>
+</div>
+
+<main id="main">
+
+<!-- 0 시작 -->
+<section class="page" data-step="0">
+ <div class="tags"><span class="tag t-me">개별</span></div>
+ <h1>드랍렛 탐구를 시작해요</h1>
+ <p class="lead">이름이나 학번은 적지 않아요. 적은 내용은 이 기기에만 저장되고, 마지막에 PDF로 저장해 제출합니다.</p>
+ <div class="card">
+  <label class="q" for="f_group">모둠 (적지 않아도 돼요)</label><input type="text" id="f_group" data-k="group" autocomplete="off" placeholder="예: 3모둠">
+  <div class="btns"><button class="btn main" id="startBtn" type="button">시작해요</button><button class="btn" id="clearBtn" type="button">처음부터 새로 쓰기</button></div>
+  <div class="msg" id="startMsg"></div>
+  <p class="hint">다른 친구가 쓰던 기기라면 [처음부터 새로 쓰기]를 눌러요.</p>
+ </div>
+ <div class="card ai">
+  <p class="sub">오늘 활동지의 순서</p>
+  <p style="margin:0">내 생각을 <b>먼저</b> 적고 → AI에게 묻고 → AI의 답을 <b>실험 데이터로 검증</b>합니다.<br>AI에게 보낼 글은 활동지가 만들어 줍니다. 학교 계정으로 쓰고, <b>이름·학번·얼굴은 AI에 넣지 않습니다.</b></p>
+ </div>
+</section>
+
+<!-- 1 개념 -->
+<section class="page" data-step="1">
+ <div class="tags"><span class="tag t-noai">AI 없이</span><span class="tag t-me">개별</span></div>
+ <h1>개념 확인</h1>
+ <p class="lead">수두압 P = ρ × g × h, 수두차 Δh = 오일 수면 − 샘플 수면</p>
+ <div class="todo"><b>이번 단계에서 할 일</b><ol><li>세 문제를 풀어요. 계산 과정과 단위를 함께 적어요.</li></ol></div>
+ <div class="card">
+  <label class="q" for="k_c1">1. 물(ρ = 1,000 kg/m³)의 수면이 칩보다 10 mm 높을 때 수두압은? (g = 9.8 m/s²)</label>
+  <textarea data-k="c1" id="k_c1" placeholder="10 mm = ? m, ρgh = ? Pa"></textarea>
+  <label class="q" for="k_c2">2. 오일 수면 75 mm, 샘플 수면 60 mm일 때 Δh는? (부호 포함)</label>
+  <input type="text" data-k="c2" id="k_c2">
+  <label class="q" for="k_c3">3. 두 수면의 높이가 같으면(Δh = 0) 두 액체의 수두압도 같을까요? 이유는?</label>
+  <textarea data-k="c3" id="k_c3"></textarea>
+ </div>
+</section>
+
+<!-- 2 나의 예측 -->
+<section class="page" data-step="2">
+ <div class="tags"><span class="tag t-noai">AI 없이</span><span class="tag t-me">개별</span></div>
+ <h1>나의 예측을 먼저 적어요</h1>
+ <p class="lead">AI에게 묻기 전의 내 판단입니다. 맞고 틀림은 채점하지 않아요. 근거가 중요합니다.</p>
+ <div class="card mine">
+  <label class="q">1. 오일 수면을 높여 Δh가 커지면, 드랍렛의 평균 면적은?</label>
+  <div class="radios" data-r="pred.choice"></div>
+  <label class="q" for="k_pw">2. 그렇게 생각한 근거 (수두압, 유량, T-junction에서 목이 끊기는 과정을 떠올려 보세요)</label>
+  <textarea data-k="pred.why" id="k_pw"></textarea>
+  <label class="q" for="k_pf">3. Δh가 아주 작을 때(−5 mm)와 아주 클 때(+15 mm) 생성 형태는 어떨까요?</label>
+  <textarea data-k="pred.form" id="k_pf" placeholder="스퀴징 / 드리핑 / 젯팅 / 생성되지 않음"></textarea>
+ </div>
+</section>
+
+<!-- 3 AI 대화 1 -->
+<section class="page" data-step="3">
+ <div class="tags"><span class="tag t-ai">AI 활용</span><span class="tag t-me">개별</span></div>
+ <h1>AI와 대화 1 · 예측 견주기</h1>
+ <p class="lead">AI에게 같은 질문을 하고, 내 예측과 AI의 예측을 견주어 최종 예측을 정해요.</p>
+ <div class="todo"><b>이번 단계에서 할 일</b><ol><li>보낼 글을 복사해 제미나이에 붙여 넣어요.</li><li>받은 답을 <b>내 말로</b> 정리해요. 그대로 옮기지 않아요.</li><li>AI의 근거를 따져 보고 최종 예측을 정해요.</li></ol></div>
+ <div class="card ai">
+  <p class="sub">가. AI에게 보낼 글</p>
+  <div id="lock1" class="lock">2단계에서 나의 예측과 근거를 먼저 적어야 보낼 글이 열려요.</div>
+  <div id="box1" style="display:none">
+   <textarea class="prompt" id="prompt1" readonly></textarea>
+   <div class="btns"><button class="btn main" type="button" id="copy1">복사하기</button><a class="btn oil" href="https://gemini.google.com/" target="_blank" rel="noopener">제미나이 열기</a></div>
+   <div class="msg" id="copyMsg1"></div>
+   <p class="hint">처음 복사할 때 지금의 내 예측이 ‘처음 예측’으로 따로 남아요. 보낼 글에는 내 예측과 이름이 들어가지 않아요.</p>
+  </div>
+ </div>
+ <div class="card ai">
+  <p class="sub">나. 받은 답을 내 말로 정리해요</p>
+  <label class="q">AI의 예측</label>
+  <div class="radios" data-r="ai1.choice"></div>
+  <label class="q" for="k_a1w">AI가 든 근거 (내 말로 짧게)</label>
+  <textarea data-k="ai1.why" id="k_a1w"></textarea>
+  <label class="q" for="k_a1f">AI가 말한 생성 형태 변화</label>
+  <textarea data-k="ai1.form" id="k_a1f"></textarea>
+  <label class="q" for="k_a1r">AI가 든 ‘예측이 틀릴 수 있는 이유’</label>
+  <textarea data-k="ai1.risk" id="k_a1r"></textarea>
+ </div>
+ <div class="card">
+  <p class="sub">다. 견주어 따져 보기</p>
+  <div class="snap" id="snap1"></div>
+  <label class="q" for="k_m1a">AI의 근거 중 받아들일 만한 것과 그 이유</label>
+  <textarea data-k="cmp1.accept" id="k_m1a"></textarea>
+  <label class="q" for="k_m1d">AI의 근거 중 의심스럽거나 우리 실험과 맞지 않는 것과 그 이유</label>
+  <textarea data-k="cmp1.doubt" id="k_m1d"></textarea>
+ </div>
+ <div class="card mine">
+  <p class="sub">라. 나의 최종 예측</p>
+  <div class="radios" data-r="final.choice"></div>
+  <label class="q" for="k_fr">처음 예측을 바꾸었나요, 지켰나요? 그 이유는?</label>
+  <textarea data-k="final.reason" id="k_fr"></textarea>
+ </div>
+</section>
+
+<!-- 4 실험 기록 -->
+<section class="page" data-step="4">
+ <div class="tags"><span class="tag t-noai">AI 없이</span><span class="tag t-grp">모둠</span></div>
+ <h1>실험 기록</h1>
+ <p class="lead">오일 수면(h<sub>c</sub>)만 바꾸고 나머지는 모두 같게. 촬영 직전에 다시 잰 <b>실제 높이</b>를 적어요.</p>
+ <div class="todo"><b>이번 단계에서 할 일</b><ol><li>칩의 같은 기준점(바닥)에서 수면까지 수직으로 재요.</li><li>흐름이 안정되면 같은 위치·배율로 Analysis Area를 찍어요. 파일명 예: head_p10_01</li><li>드랍렛이 생기지 않으면 ‘생성되지 않음’을 골라요.</li></ol></div>
+ <div class="card">
+  <p class="sub">같게 유지한 조건 · 주사기 초기 위치</p>
+  <div class="row2"><div><input type="text" data-k="v1" inputmode="decimal" placeholder="28"></div><div class="hint" style="margin:0;align-self:center">mL (기본 28 mL)</div></div>
+ </div>
+ <div class="card">
+  <div class="scroll"><table id="tblObs"></table></div>
+  <label class="q" for="k_obs">관찰 메모 (눈으로 본 변화, 예상과 다른 점)</label>
+  <textarea data-k="obsMemo" id="k_obs"></textarea>
+ </div>
+</section>
+
+<!-- 5 분석 결과 -->
+<section class="page" data-step="5">
+ <div class="tags"><span class="tag t-noai">AI 없이</span><span class="tag t-grp">모둠</span></div>
+ <h1>분석 결과</h1>
+ <p class="lead"><a href="https://circlenam.github.io/droplet-analysis/" target="_blank" rel="noopener">드랍렛 분석기</a>의 종합결과에서 N·평균 면적·SD를 옮겨 적어요. CV는 저절로 계산됩니다.</p>
+ <div class="todo"><b>이번 단계에서 할 일</b><ol><li>참고치수를 3 mm로 입력했는지, 면적 단위가 mm²인지 확인해요. (1 mm² = 1,000,000 µm²)</li><li>CV(%) = SD ÷ 평균 × 100. 크기가 다른 조건의 균일도는 CV로 비교해요.</li></ol></div>
+ <div class="card">
+  <div class="scroll"><table id="tblRes"></table></div>
+  <div class="fig" id="fig"><svg id="chart" aria-label="수두차에 따른 평균 면적 그래프"></svg></div>
+  <p class="hint">점 = 평균 면적, 위아래 막대 = 평균 ± SD. 생성되지 않은 조건은 가로축 아래에 표시돼요.</p>
+ </div>
+</section>
+
+<!-- 6 나의 결론 -->
+<section class="page" data-step="6">
+ <div class="tags"><span class="tag t-noai">AI 없이</span><span class="tag t-me">개별</span></div>
+ <h1>나의 결론을 먼저 적어요</h1>
+ <p class="lead">AI에게 데이터를 보여 주기 전에, 내가 데이터에서 읽은 것을 적어요.</p>
+ <div class="card">
+  <label class="q">실제 결과: Δh가 커질수록 평균 면적은</label>
+  <div class="radios" data-r="real"></div>
+  <div class="scroll" style="margin-top:12px"><table class="cmp" id="tblCmp"></table></div>
+ </div>
+ <div class="card mine">
+  <label class="q" for="k_cm">한 문장 결론 (숫자를 넣어 써요)</label>
+  <textarea data-k="concl.mine" id="k_cm"></textarea>
+  <div class="btns"><button class="btn" type="button" id="frameBtn">결론 틀 넣기</button></div>
+  <label class="q" for="k_cu">가장 고르게 만들어진 조건과 그 근거</label>
+  <textarea data-k="concl.uniform" id="k_cu"></textarea>
+  <p class="hint" id="cvHint"></p>
+  <label class="q" for="k_cp">예측과 결과가 다르다면, 그 까닭은 무엇일까요?</label>
+  <textarea data-k="concl.gap" id="k_cp"></textarea>
+ </div>
+</section>
+
+<!-- 7 AI 대화 2 -->
+<section class="page" data-step="7">
+ <div class="tags"><span class="tag t-ai">AI 활용</span><span class="tag t-me">개별</span></div>
+ <h1>AI와 대화 2 · AI의 해석을 검증해요</h1>
+ <p class="lead">우리 데이터를 AI에게 주고 해석을 받은 뒤, AI의 말이 데이터와 맞는지 하나씩 따져요.</p>
+ <div class="todo"><b>이번 단계에서 할 일</b><ol><li>보낼 글을 복사해 제미나이에 붙여 넣어요.</li><li>AI의 주장을 세 개 골라, 우리 데이터의 숫자로 맞는지 판정해요.</li><li>검증한 뒤 나의 최종 결론과 한계를 적어요.</li></ol></div>
+ <div class="card ai">
+  <p class="sub">가. AI에게 보낼 글</p>
+  <div id="lock2" class="lock">6단계 한 문장 결론과, 5단계 평균 면적 두 조건 이상을 먼저 적어야 열려요.</div>
+  <div id="box2" style="display:none">
+   <textarea class="prompt" id="prompt2" readonly></textarea>
+   <div class="btns"><button class="btn main" type="button" id="copy2">복사하기</button><a class="btn oil" href="https://gemini.google.com/" target="_blank" rel="noopener">제미나이 열기</a></div>
+   <div class="msg" id="copyMsg2"></div>
+   <p class="hint">처음 복사할 때 지금의 내 결론이 ‘처음 결론’으로 따로 남아요.</p>
+  </div>
+ </div>
+ <div class="card ai">
+  <p class="sub">나. AI의 해석을 내 말로 정리해요</p>
+  <textarea data-k="ai2.summary" placeholder="AI가 말한 경향, 가장 균일한 조건, 결론, 데이터로 말할 수 없는 것"></textarea>
+ </div>
+ <div class="card">
+  <p class="sub">다. AI의 주장 검증표</p>
+  <div class="scroll"><table class="claims" id="tblClaims"></table></div>
+  <p class="hint">확인할 것: 숫자를 바르게 옮겼나? 데이터에 없는 말을 지어냈나? SD만 보고 균일도를 판단했나? 사진 몇 장으로 지나치게 일반화했나?</p>
+ </div>
+ <div class="card mine">
+  <p class="sub">라. 나의 최종 결론</p>
+  <div class="snap" id="snap2"></div>
+  <label class="q" for="k_fc">검증한 뒤의 최종 결론</label>
+  <textarea data-k="finalConcl" id="k_fc"></textarea>
+  <label class="q" for="k_lim">결론의 한계 (수면 변화, 촬영 시점, 드랍렛 선택, 반복 횟수 등)</label>
+  <textarea data-k="limit" id="k_lim"></textarea>
+ </div>
+</section>
+
+<!-- 8 마무리 -->
+<section class="page" data-step="8">
+ <div class="tags"><span class="tag t-me">개별</span></div>
+ <h1>마무리와 제출</h1>
+ <div class="card">
+  <p class="sub">다음 실험 설계</p>
+  <label class="q" for="k_nh">검증할 가설</label><textarea data-k="next.hyp" id="k_nh"></textarea>
+  <label class="q" for="k_nv">바꿀 변인과 같게 유지할 변인</label><textarea data-k="next.vars" id="k_nv"></textarea>
+  <label class="q" for="k_nr">반복 계획 (조건마다 몇 번, 어떻게)</label><textarea data-k="next.rep" id="k_nr"></textarea>
+ </div>
+ <div class="card ai">
+  <p class="sub">AI 활용 돌아보기</p>
+  <label class="q" for="k_rh">AI 덕분에 새로 생각하게 된 것</label><textarea data-k="refl.help" id="k_rh"></textarea>
+  <label class="q" for="k_rn">AI의 말을 따르지 않은 것과 그 근거</label><textarea data-k="refl.not" id="k_rn"></textarea>
+ </div>
+ <div class="card">
+  <p class="sub">자기평가</p>
+  <div class="scroll"><table id="tblSelf"></table></div>
+ </div>
+ <div class="card mine">
+  <p class="sub">활동지 저장하기</p>
+  <p class="hint" style="margin-top:0">PDF로 저장해 클래스룸에 올려요. 인쇄 창이 뜨면 ‘PDF로 저장’을 고르세요. 저장이 안 되면 [내용 복사하기]로 글을 붙여 넣어 제출해요.</p>
+  <div class="btns"><button class="btn main" type="button" id="saveBtn">활동지 PDF로 저장</button><button class="btn" type="button" id="copyAllBtn">내용 복사하기</button></div>
+  <div class="msg" id="saveMsg"></div>
+  <textarea id="allText" class="prompt" readonly style="display:none;margin-top:10px"></textarea>
+ </div>
+</section>
+
+</main>
+
+<div class="navbar"><div class="navin"><button class="btn" type="button" id="prevBtn">← 이전 단계</button><button class="btn main" type="button" id="nextBtn">다음 단계 →</button></div></div>
+<div class="toast" id="toast"><span id="toastText"></span><button type="button" id="toastX">닫기</button></div>
+
+<div id="teach"><div class="in">
+ <div class="tnav"><button type="button" id="tPrev">← 이전</button><button type="button" id="tClose">수업 화면 닫기</button><button type="button" id="tNext">다음 →</button></div>
+ <h3 id="tStep"></h3><h4 id="tTitle"></h4><ul id="tTodo"></ul>
+ <div id="tHoldWrap"><button type="button" class="hold" id="tHold">누르고 있으면 답이 보여요</button><div class="ans" id="tAns"></div></div>
+</div></div>
+
+<div id="printView"></div>
+
+<script>
+(function(){
+var KEY='easydrop.ai.v2.data';
+var STEPS=['시작','개념 확인','나의 예측','AI 대화 1','실험 기록','분석 결과','나의 결론','AI 대화 2','마무리'];
+var CHOICES=['커진다','작아진다','거의 같다'];
+var REAL=['커졌다','작아졌다','거의 같았다','일정한 경향이 없었다'];
+var FORMS=['','스퀴징','드리핑','젯팅','생성되지 않음'];
+var TARGET=[-5,0,5,10,15], LETTERS=['A','B','C','D','E'];
+var SELF=['두 상과 계면의 역할을 설명할 수 있다','같은 기준으로 높이를 재고 나머지 조건을 유지했다','AI의 답을 데이터로 검증했다','근거와 한계를 구분해 결론을 썼다'];
+var TEACH=[
+ {t:'드랍렛 탐구를 시작해요',d:['이름 · 학번은 적지 않아요 · 기기에 저장','다른 사람이 쓰던 기기면 [처음부터 새로 쓰기]','AI에는 이름 · 학번 · 얼굴을 넣지 않아요']},
+ {t:'개념 확인',d:['수두압 P = ρgh, 수두차 Δh = h_c − h_d','세 문제를 풀어요 · 단위를 함께'],a:'1. 10 mm = 0.010 m → 1,000 × 9.8 × 0.010 = 98 Pa\n2. Δh = 75 − 60 = +15 mm\n3. 아니다. 밀도가 다르면 같은 높이에서도 ρgh가 다르다.'},
+ {t:'나의 예측을 먼저',d:['AI에게 묻기 전에 내 판단과 근거','맞고 틀림보다 근거가 중요해요']},
+ {t:'AI와 대화 1 · 예측 견주기',d:['보낼 글 복사 → 제미나이에 붙여 넣기','받은 답은 내 말로 정리','받아들일 것 · 의심스러운 것 → 최종 예측']},
+ {t:'실험 기록',d:['오일 수면만 바꾸기: −5 · 0 · +5 · +10 · +15 mm','촬영 직전 실제 높이를 다시 재기','같은 위치 · 배율로 촬영']},
+ {t:'분석 결과',d:['분석기 종합결과에서 N · 평균 · SD 옮기기','단위 mm² 확인 · CV는 자동 계산']},
+ {t:'나의 결론을 먼저',d:['AI에게 보여 주기 전에 내 결론','숫자를 넣은 한 문장 결론','균일도는 CV로 비교']},
+ {t:'AI와 대화 2 · 해석 검증',d:['우리 데이터를 AI에게','AI의 주장 세 개를 숫자로 판정','검증 후 최종 결론과 한계']},
+ {t:'마무리와 제출',d:['다음 실험 설계 · AI 활용 돌아보기','활동지 PDF 저장 → 클래스룸 제출']}
+];
+
+function blank(){return {group:'',step:0,c1:'',c2:'',c3:'',
+ pred:{choice:'',why:'',form:''},pred0:null,ai1:{choice:'',why:'',form:'',risk:''},cmp1:{accept:'',doubt:''},final:{choice:'',reason:''},
+ v1:'28',rows:[{},{},{},{},{}],obsMemo:'',real:'',concl:{mine:'',uniform:'',gap:''},concl0:null,ai2:{summary:''},
+ claims:[{},{},{}],finalConcl:'',limit:'',next:{hyp:'',vars:'',rep:''},refl:{help:'',not:''},self:['','','','']};}
+var S=blank(), active=true, cur=0;
+
+function $(id){return document.getElementById(id);}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+function getP(o,p){var a=p.split('.');for(var i=0;i<a.length;i++){if(o==null)return '';o=o[a[i]];}return o==null?'':o;}
+function setP(o,p,v){var a=p.split('.');for(var i=0;i<a.length-1;i++){if(o[a[i]]==null)o[a[i]]={};o=o[a[i]];}o[a[a.length-1]]=v;}
+function num(v){if(v===''||v==null)return NaN;var n=parseFloat(String(v).replace(',','.'));return isNaN(n)?NaN:n;}
+function fmt(n,d){return isNaN(n)?'':n.toFixed(d);}
+function has(s){return String(s||'').replace(/\s/g,'').length>=3;}
+
+/* 저장 */
+var saveTimer=null;
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+function saveSoon(){if(saveTimer)clearTimeout(saveTimer);saveTimer=setTimeout(save,400);}
+function load(){try{var t=localStorage.getItem(KEY);if(t){var o=JSON.parse(t),b=blank();for(var k in b){if(o[k]==null)o[k]=b[k];}return o;}}catch(e){}return null;}
+window.addEventListener('pagehide',save);
+document.addEventListener('visibilitychange',function(){if(document.hidden)save();});
+
+function toast(t){$('toastText').textContent=t;$('toast').style.display='block';}
+$('toastX').onclick=function(){$('toast').style.display='none';};
+
+/* 라디오 그룹 만들기 */
+function buildRadios(){var g=document.querySelectorAll('[data-r]');for(var i=0;i<g.length;i++){var k=g[i].getAttribute('data-r'),opts=(k==='real')?REAL:CHOICES,h='';
+ for(var j=0;j<opts.length;j++){h+='<label><input type="radio" name="r_'+k+'" value="'+esc(opts[j])+'" data-k="'+k+'">'+esc(opts[j])+'</label>';}g[i].innerHTML=h;}}
+
+/* 표 만들기 */
+function buildTables(){
+ var h='<tr><th>조건</th><th>목표 Δh</th><th>실제 h_c (mm)</th><th>실제 h_d (mm)</th><th>실제 Δh</th><th>생성 형태</th><th>분리 위치 · 메모</th></tr>';
+ for(var i=0;i<5;i++){h+='<tr><td><b>'+LETTERS[i]+'</b></td><td>'+(TARGET[i]>0?'+':'')+TARGET[i]+' mm</td>'+
+  '<td><input type="text" inputmode="decimal" data-k="rows.'+i+'.hc"></td><td><input type="text" inputmode="decimal" data-k="rows.'+i+'.hd"></td>'+
+  '<td class="auto" id="dh'+i+'"></td><td><select data-k="rows.'+i+'.form">'+FORMS.map(function(f){return '<option value="'+esc(f)+'">'+(f||'고르기')+'</option>';}).join('')+'</select></td>'+
+  '<td><input type="text" data-k="rows.'+i+'.memo"></td></tr>';}
+ $('tblObs').innerHTML=h;
+ h='<tr><th>조건</th><th>실제 Δh</th><th>생성 형태</th><th>N (개)</th><th>평균 면적 (mm²)</th><th>SD (mm²)</th><th>CV (%)</th></tr>';
+ for(i=0;i<5;i++){h+='<tr><td><b>'+LETTERS[i]+'</b></td><td class="auto" id="rdh'+i+'"></td><td id="rf'+i+'"></td>'+
+  '<td><input type="text" inputmode="numeric" data-k="rows.'+i+'.n"></td><td><input type="text" inputmode="decimal" data-k="rows.'+i+'.mean"></td>'+
+  '<td><input type="text" inputmode="decimal" data-k="rows.'+i+'.sd"></td><td class="auto" id="cv'+i+'"></td></tr>';}
+ $('tblRes').innerHTML=h;
+ h='<tr><th>AI의 주장 (한 문장)</th><th>판정</th><th>우리 데이터의 근거 (숫자)</th></tr>';
+ for(i=0;i<3;i++){h+='<tr><td><textarea data-k="claims.'+i+'.c"></textarea></td><td><select data-k="claims.'+i+'.v"><option value="">고르기</option><option>데이터와 맞음</option><option>데이터와 다름</option><option>데이터로는 알 수 없음</option></select></td><td><textarea data-k="claims.'+i+'.e"></textarea></td></tr>';}
+ $('tblClaims').innerHTML=h;
+ h='<tr><th>항목</th><th>잘함</th><th>보통</th><th>더 노력</th></tr>';
+ for(i=0;i<SELF.length;i++){h+='<tr><td>'+esc(SELF[i])+'</td>';var L=['잘함','보통','더 노력'];for(var j=0;j<3;j++){h+='<td><input type="radio" name="self'+i+'" value="'+L[j]+'" data-k="self.'+i+'" aria-label="'+L[j]+'" style="width:22px;height:22px"></td>';}h+='</tr>';}
+ $('tblSelf').innerHTML=h;
+}
+
+/* 계산 */
+function dh(i){var r=S.rows[i]||{},a=num(r.hc),b=num(r.hd);return (isNaN(a)||isNaN(b))?NaN:a-b;}
+function dhOr(i){var d=dh(i);return isNaN(d)?TARGET[i]:d;}
+function cv(i){var r=S.rows[i]||{},m=num(r.mean),s=num(r.sd);return (isNaN(m)||isNaN(s)||m<=0)?NaN:s/m*100;}
+function sign(n){return (n>0?'+':n<0?'−':'')+fmt(Math.abs(n),n%1?1:0);}
+function nMeans(){var c=0;for(var i=0;i<5;i++){if(!isNaN(num(S.rows[i].mean)))c++;}return c;}
+
+function calc(){
+ for(var i=0;i<5;i++){var d=dh(i);var t=isNaN(d)?'':sign(d)+' mm';$('dh'+i).textContent=t;$('rdh'+i).textContent=t||('목표 '+sign(TARGET[i]));
+  $('rf'+i).textContent=S.rows[i].form||'';var c=cv(i);$('cv'+i).textContent=isNaN(c)?'':fmt(c,1);}
+ var best=-1,bv=1e9;for(i=0;i<5;i++){var c2=cv(i);if(!isNaN(c2)&&c2<bv){bv=c2;best=i;}}
+ $('cvHint').textContent=best>=0?('참고: 계산된 CV가 가장 작은 조건은 '+LETTERS[best]+' ('+fmt(bv,1)+'%)입니다. 평균 면적이 다른 조건끼리는 SD보다 CV로 비교해요.'):'';
+ drawChart();renderCmp();renderLocks();renderSnaps();
+}
+
+/* 그래프 */
+function drawChart(){
+ var svg=$('chart');if(!svg)return;var W=svg.clientWidth||600,H=svg.clientHeight||300;if(W<50)return;
+ var pts=[],none=[],ymax=0;
+ for(var i=0;i<5;i++){var r=S.rows[i],m=num(r.mean),s=num(r.sd),x=dhOr(i);
+  if(r.form==='생성되지 않음'){none.push(x);continue;}
+  if(!isNaN(m)){var sd=isNaN(s)?0:s;pts.push({x:x,m:m,s:sd,l:LETTERS[i]});if(m+sd>ymax)ymax=m+sd;}}
+ var pl=W<520?44:58,pr=16,pt=18,pb=52,iw=W-pl-pr,ih=H-pt-pb;
+ var xmin=-10,xmax=20;for(i=0;i<5;i++){var xv=dhOr(i);if(xv<xmin)xmin=xv-5;if(xv>xmax)xmax=xv+5;}
+ if(ymax<=0)ymax=1;var step=niceStep(ymax/4);ymax=Math.ceil(ymax*1.08/step)*step;
+ function X(v){return pl+(v-xmin)/(xmax-xmin)*iw;}function Y(v){return pt+ih-(v/ymax)*ih;}
+ var g='';
+ for(var y=0;y<=ymax+1e-9;y+=step){g+='<line x1="'+pl+'" x2="'+(W-pr)+'" y1="'+Y(y)+'" y2="'+Y(y)+'" stroke="#E2EAEC"/><text x="'+(pl-8)+'" y="'+(Y(y)+4)+'" font-size="12" text-anchor="end" fill="#3D5260">'+fmt(y,step<0.1?2:(step<1?1:0))+'</text>';}
+ for(var xt=Math.ceil(xmin/5)*5;xt<=xmax;xt+=5){g+='<text x="'+X(xt)+'" y="'+(pt+ih+18)+'" font-size="12" text-anchor="middle" fill="#3D5260">'+(xt>0?'+':xt<0?'−':'')+Math.abs(xt)+'</text>';}
+ g+='<line x1="'+pl+'" x2="'+(W-pr)+'" y1="'+(pt+ih)+'" y2="'+(pt+ih)+'" stroke="#0F2A3D" stroke-width="1.5"/>';
+ g+='<text x="'+(pl+iw/2)+'" y="'+(H-8)+'" font-size="13" text-anchor="middle" fill="#0F2A3D">수두차 Δh (mm)</text>';
+ g+='<text x="14" y="'+(pt+ih/2)+'" font-size="13" text-anchor="middle" fill="#0F2A3D" transform="rotate(-90 14 '+(pt+ih/2)+')">평균 면적 (mm²)</text>';
+ pts.sort(function(a,b){return a.x-b.x;});
+ if(pts.length>1){var d='';for(i=0;i<pts.length;i++){d+=(i?'L':'M')+X(pts[i].x)+' '+Y(pts[i].m);}g+='<path d="'+d+'" fill="none" stroke="#9CCAD2" stroke-width="2"/>';}
+ for(i=0;i<pts.length;i++){var p=pts[i],cx=X(p.x);
+  if(p.s>0)g+='<line x1="'+cx+'" x2="'+cx+'" y1="'+Y(p.m+p.s)+'" y2="'+Y(Math.max(0,p.m-p.s))+'" stroke="#0F2A3D" stroke-width="2"/><line x1="'+(cx-6)+'" x2="'+(cx+6)+'" y1="'+Y(p.m+p.s)+'" y2="'+Y(p.m+p.s)+'" stroke="#0F2A3D" stroke-width="2"/><line x1="'+(cx-6)+'" x2="'+(cx+6)+'" y1="'+Y(Math.max(0,p.m-p.s))+'" y2="'+Y(Math.max(0,p.m-p.s))+'" stroke="#0F2A3D" stroke-width="2"/>';
+  g+='<circle cx="'+cx+'" cy="'+Y(p.m)+'" r="7" fill="#C8472F"/><text x="'+(cx+10)+'" y="'+(Y(p.m)-8)+'" font-size="12" font-weight="700" fill="#0F2A3D">'+p.l+'</text>';}
+ for(i=0;i<none.length;i++){g+='<text x="'+X(none[i])+'" y="'+(pt+ih+36)+'" font-size="11" text-anchor="middle" fill="#C8472F">미생성</text>';}
+ if(!pts.length)g+='<text x="'+(pl+iw/2)+'" y="'+(pt+ih/2)+'" font-size="14" text-anchor="middle" fill="#3D5260">평균 면적을 적으면 그래프가 그려져요</text>';
+ svg.innerHTML=g;
+}
+function niceStep(v){if(v<=0)return 0.1;var p=Math.pow(10,Math.floor(Math.log(v)/Math.LN10)),f=v/p;return (f<=1?1:f<=2?2:f<=5?5:10)*p;}
+
+/* 비교 표 · 스냅샷 */
+function renderCmp(){
+ var p0=S.pred0?S.pred0.choice:S.pred.choice;
+ $('tblCmp').innerHTML='<tr><th>처음 예측</th><th>AI 예측</th><th>최종 예측</th><th>실제 결과</th></tr><tr><td>'+esc(p0||'—')+'</td><td>'+esc(S.ai1.choice||'—')+'</td><td>'+esc(S.final.choice||'—')+'</td><td><b>'+esc(S.real||'—')+'</b></td></tr>';
+}
+function renderSnaps(){
+ var p=S.pred0||S.pred;
+ $('snap1').innerHTML='<b>'+(S.pred0?'처음 예측 (AI에게 묻기 전에 남긴 것)':'지금 나의 예측')+'</b>'+esc((p.choice||'—')+' · '+(p.why||''))+'\n\n<b>AI의 예측</b>'+esc((S.ai1.choice||'—')+' · '+(S.ai1.why||''));
+ var c=S.concl0||{mine:S.concl.mine};
+ $('snap2').innerHTML='<b>'+(S.concl0?'처음 결론 (AI에게 묻기 전에 남긴 것)':'지금 나의 결론')+'</b>'+esc(c.mine||'—');
+}
+function renderLocks(){
+ var ok1=!!S.pred.choice&&has(S.pred.why);$('lock1').style.display=ok1?'none':'block';$('box1').style.display=ok1?'block':'none';
+ var ok2=has(S.concl.mine)&&nMeans()>=2;$('lock2').style.display=ok2?'none':'block';$('box2').style.display=ok2?'block':'none';
+ if(ok1)$('prompt1').value=prompt1();if(ok2)$('prompt2').value=prompt2();
+}
+
+/* AI에게 보낼 글 — 이름 · 학번 · 학생의 예측은 넣지 않는다 */
+function prompt1(){return [
+ '고등학교 과학탐구실험 수업에서 하는 실험의 결과를 예측해 주세요.','',
+ '[실험 장치]',
+ '- 미세유체 칩의 T자 접합부에서 섞이지 않는 두 액체가 만납니다. 위쪽 저장고의 오일(연속상)이 주 유로를 따라 흐르고, 오른쪽 저장고의 빨간 색소를 넣은 물(분산상)이 옆 유로로 들어와 오일 속에서 작은 물방울(드랍렛)로 끊어집니다.',
+ '- 칩 출구에 30 mL 주사기를 연결하고, 피스톤을 '+(S.v1||'28')+' mL에서 30 mL로 당겨 고정해 음압을 만듭니다. 이 음압이 두 액체를 끌어당깁니다.','',
+ '[바꾸는 조건]',
+ '물(분산상) 수면 높이는 고정하고, 오일(연속상) 수면 높이만 바꿉니다. 수두차 Δh = 오일 수면 높이 − 물 수면 높이를 −5, 0, +5, +10, +15 mm로 바꿉니다. 나머지 조건은 모두 같습니다.','',
+ '[측정]','칩의 관찰 구역을 촬영해 드랍렛 면적(mm²)의 평균과 표준편차를 잽니다.','',
+ '[질문]',
+ '1. Δh가 커지면 드랍렛의 평균 면적은 커질까요, 작아질까요, 거의 같을까요? 하나를 고르고, 근거를 3문장 이내로 설명해 주세요.',
+ '2. Δh가 아주 작을 때(−5 mm)와 아주 클 때(+15 mm) 드랍렛 생성 형태(스퀴징, 드리핑, 젯팅, 생성되지 않음)는 어떻게 될까요?',
+ '3. 이 예측이 틀릴 수 있는 이유를 2가지 들어 주세요.','',
+ '고등학생이 이해할 수 있게 짧게 답해 주세요.'].join('\n');}
+function prompt2(){var L=['고등학교 과학탐구실험에서 얻은 실험 데이터입니다. 아래 데이터만 근거로 답해 주세요.','',
+ '[실험] 미세유체 칩의 T자 접합부에서 오일(연속상) 속에 물방울(드랍렛)을 만들었습니다. 출구의 주사기 음압('+(S.v1||'28')+' mL → 30 mL)은 같게 두고, 오일 수면만 바꾸어 수두차 Δh(오일 수면 − 물 수면)를 바꾸었습니다. 조건마다 사진 한 장에서 드랍렛 면적을 쟀습니다.','','[데이터]'];
+ for(var i=0;i<5;i++){var r=S.rows[i],m=num(r.mean),s=num(r.sd),c=cv(i),d=dhOr(i);
+  if(r.form==='생성되지 않음'){L.push('조건 '+LETTERS[i]+': Δh = '+sign(d)+' mm, 드랍렛이 생성되지 않음');continue;}
+  if(isNaN(m))continue;
+  L.push('조건 '+LETTERS[i]+': Δh = '+sign(d)+' mm, 생성 형태 '+(r.form||'기록 없음')+', N = '+(r.n||'?')+', 평균 면적 '+r.mean+' mm², SD '+(r.sd||'?')+' mm²'+(isNaN(c)?'':', CV '+fmt(c,1)+'%'));}
+ L.push('','[질문]','1. Δh와 평균 면적 사이에 어떤 경향이 보이나요? 숫자를 들어 설명해 주세요.','2. 드랍렛이 가장 고르게(균일하게) 만들어진 조건은 어디인가요? 근거도 함께 써 주세요.','3. 이 실험의 결론을 한 문장으로 써 주세요.','4. 이 데이터만으로는 확실히 말할 수 없는 것은 무엇인가요?');
+ return L.join('\n');}
+
+/* 복사 */
+function copyBox(ta,msg){var ok=false;try{ta.focus();ta.select();ta.setSelectionRange(0,ta.value.length);ok=document.execCommand('copy');}catch(e){}
+ try{if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(ta.value).then(function(){$(msg).textContent='복사했어요. 제미나이에 붙여 넣으세요.';},function(){});}}catch(e){}
+ $(msg).textContent=ok?'복사했어요. 제미나이에 붙여 넣으세요.':'글이 골라져 있어요. 직접 복사해 붙여 넣으세요.';}
+$('copy1').onclick=function(){if(!S.pred0){S.pred0={choice:S.pred.choice,why:S.pred.why,form:S.pred.form};saveSoon();renderSnaps();renderCmp();}copyBox($('prompt1'),'copyMsg1');};
+$('copy2').onclick=function(){if(!S.concl0){S.concl0={mine:S.concl.mine,uniform:S.concl.uniform};saveSoon();renderSnaps();}copyBox($('prompt2'),'copyMsg2');};
+$('frameBtn').onclick=function(){var t='수두차 Δh가 ___ mm에서 ___ mm로 커지자 평균 면적은 ___ mm²에서 ___ mm²로 (커졌다/작아졌다/거의 같았다).';
+ if(!has(S.concl.mine)){S.concl.mine=t;$('k_cm').value=t;saveSoon();calc();}else{toast('이미 적은 결론이 있어 틀을 넣지 않았어요.');}};
+
+/* 입력 연결 */
+function fill(){var els=document.querySelectorAll('[data-k]');for(var i=0;i<els.length;i++){var e=els[i],k=e.getAttribute('data-k'),v=getP(S,k);
+ if(e.type==='radio'){e.checked=(v===e.value);}else{e.value=v;}}
+ markRadios();}
+function markRadios(){var r=document.querySelectorAll('.radios label');for(var i=0;i<r.length;i++){var inp=r[i].getElementsByTagName('input')[0];r[i].className=inp&&inp.checked?'sel':'';}}
+function onInput(ev){var e=ev.target,k=e.getAttribute&&e.getAttribute('data-k');if(!k)return;
+ if(e.type==='radio'){if(!e.checked)return;setP(S,k,e.value);markRadios();}else{setP(S,k,e.value);}
+ saveSoon();calc();renderChips();}
+document.addEventListener('input',onInput);document.addEventListener('change',onInput);
+
+/* 시작 · 새로 쓰기 */
+function setWho(){$('who').textContent=S.group?S.group:'';}
+$('startBtn').onclick=function(){save();go(S.step&&S.step>0?S.step:1);};
+var clearArm=false;
+$('clearBtn').onclick=function(){if(!clearArm){clearArm=true;$('startMsg').textContent='한 번 더 누르면 이 기기에 적힌 내용이 모두 지워져요.';setTimeout(function(){clearArm=false;},5000);return;}
+ clearArm=false;try{localStorage.removeItem(KEY);}catch(e){}S=blank();fill();calc();setWho();renderChips();$('startMsg').textContent='새 활동지로 시작했어요.';};
+document.addEventListener('input',function(e){if(e.target&&e.target.id==='f_group')setWho();});
+
+/* 단계 이동 */
+function done(i){switch(i){case 0:return cur>0||S.step>0;case 1:return has(S.c1)&&has(S.c2);case 2:return !!S.pred.choice&&has(S.pred.why);case 3:return !!S.final.choice&&has(S.final.reason);
+ case 4:var c=0;for(var j=0;j<5;j++){if(!isNaN(dh(j)))c++;}return c>=3;case 5:return nMeans()>=3;case 6:return !!S.real&&has(S.concl.mine);case 7:return has(S.finalConcl);case 8:return has(S.limit)&&has(S.next.hyp);}return false;}
+function renderChips(){var h='';for(var i=0;i<STEPS.length;i++){h+='<button type="button" class="chip'+(i===cur?' on':'')+(done(i)&&i!==cur?' done':'')+'" data-go="'+i+'">'+i+'. '+STEPS[i]+'</button>';}$('chips').innerHTML=h;}
+$('chips').onclick=function(e){var t=e.target.getAttribute('data-go');if(t!=null)go(+t);};
+function go(i){if(i<0||i>=STEPS.length)return;
+ cur=i;var p=document.querySelectorAll('.page');for(var j=0;j<p.length;j++){p[j].className='page'+(+p[j].getAttribute('data-step')===i?' on':'');}
+ S.step=i;saveSoon();renderChips();$('prevBtn').disabled=i===0;$('nextBtn').textContent=i===STEPS.length-1?'처음으로':'다음 단계 →';
+ window.scrollTo(0,0);if(i===5)setTimeout(drawChart,30);tcur=i;renderTeach();}
+$('prevBtn').onclick=function(){go(cur-1);};$('nextBtn').onclick=function(){go(cur===STEPS.length-1?0:cur+1);};
+window.addEventListener('resize',function(){if(cur===5)drawChart();});
+
+/* 수업 화면 */
+var tcur=0;
+function renderTeach(){var t=TEACH[tcur];$('tStep').textContent=tcur+'단계 / '+(STEPS.length-1);$('tTitle').textContent=t.t;
+ $('tTodo').innerHTML=t.d.map(function(x){return '<li>'+esc(x)+'</li>';}).join('');$('tHoldWrap').style.display=t.a?'block':'none';$('tAns').textContent=t.a||'';$('tAns').style.display='none';}
+$('teachBtn').onclick=function(){tcur=cur;renderTeach();$('teach').style.display='block';};$('tClose').onclick=function(){$('teach').style.display='none';};
+$('tPrev').onclick=function(){if(tcur>0){tcur--;renderTeach();}};$('tNext').onclick=function(){if(tcur<STEPS.length-1){tcur++;renderTeach();}};
+function showA(v){$('tAns').style.display=v?'block':'none';}
+var hb=$('tHold');hb.onmousedown=function(){showA(1);};hb.onmouseup=hb.onmouseleave=function(){showA(0);};
+hb.addEventListener('touchstart',function(e){e.preventDefault();showA(1);});hb.addEventListener('touchend',function(){showA(0);});
+
+/* 저장 · 내보내기 */
+function sec(t,items){var h='<h2>'+esc(t)+'</h2>';for(var i=0;i<items.length;i++){h+='<p class="pv"><b>'+esc(items[i][0])+'</b><br>'+esc(items[i][1]||'—')+'</p>';}return h;}
+function dataTable(){var h='<table border="1" cellspacing="0" cellpadding="4"><tr><th>조건</th><th>h_c</th><th>h_d</th><th>Δh</th><th>생성 형태</th><th>N</th><th>평균 (mm²)</th><th>SD (mm²)</th><th>CV (%)</th><th>메모</th></tr>';
+ for(var i=0;i<5;i++){var r=S.rows[i],d=dh(i),c=cv(i);h+='<tr><td>'+LETTERS[i]+'</td><td>'+esc(r.hc)+'</td><td>'+esc(r.hd)+'</td><td>'+(isNaN(d)?'':sign(d))+'</td><td>'+esc(r.form)+'</td><td>'+esc(r.n)+'</td><td>'+esc(r.mean)+'</td><td>'+esc(r.sd)+'</td><td>'+(isNaN(c)?'':fmt(c,1))+'</td><td>'+esc(r.memo)+'</td></tr>';}return h+'</table>';}
+function report(){var p0=S.pred0||{},c0=S.concl0||{};var h='<h1>드랍렛 탐구 활동지 · AI로 검증하기</h1><p>'+esc(S.group?S.group:'')+'</p>';
+ h+=sec('1. 개념 확인',[['수두압 계산',S.c1],['Δh',S.c2],['같은 높이의 수두압',S.c3]]);
+ h+=sec('2. 나의 예측 (AI 없이)',[['처음 예측',(p0.choice||S.pred.choice)+' · '+(p0.why||S.pred.why)],['생성 형태 예측',p0.form||S.pred.form]]);
+ h+=sec('3. AI와 대화 1',[['AI의 예측',S.ai1.choice+' · '+S.ai1.why],['AI가 말한 생성 형태',S.ai1.form],['AI가 든 틀릴 수 있는 이유',S.ai1.risk],['받아들인 것',S.cmp1.accept],['의심스러운 것',S.cmp1.doubt],['최종 예측',S.final.choice+' · '+S.final.reason]]);
+ h+='<h2>4·5. 실험 기록과 분석 결과</h2><p class="pv">주사기 초기 위치 '+esc(S.v1)+' mL</p>'+dataTable()+'<p class="pv"><b>관찰 메모</b><br>'+esc(S.obsMemo||'—')+'</p>';
+ h+=sec('6. 나의 결론 (AI 없이)',[['실제 결과','Δh가 커질수록 평균 면적은 '+(S.real||'—')],['처음 결론',c0.mine||S.concl.mine],['가장 고른 조건',S.concl.uniform],['예측과 다른 까닭',S.concl.gap]]);
+ var cl=[];for(var i=0;i<3;i++){var c=S.claims[i]||{};if(c.c||c.v||c.e)cl.push(['AI의 주장 '+(i+1)+': '+(c.c||''),(c.v||'판정 없음')+' · 근거: '+(c.e||'')]);}
+ h+=sec('7. AI와 대화 2 · 검증',[['AI의 해석 정리',S.ai2.summary]].concat(cl).concat([['최종 결론',S.finalConcl],['결론의 한계',S.limit]]));
+ h+=sec('8. 마무리',[['다음 실험 가설',S.next.hyp],['변인',S.next.vars],['반복 계획',S.next.rep],['AI 덕분에 생각한 것',S.refl.help],['AI를 따르지 않은 것',S.refl.not]]);
+ var sh=[];for(i=0;i<SELF.length;i++)sh.push([SELF[i],S.self[i]]);h+=sec('자기평가',sh);return h;}
+function plain(){var d=document.createElement('div');d.innerHTML=report().replace(/<\/(p|h1|h2|tr)>/g,'</$1>\n').replace(/<br>/g,'\n').replace(/<\/t[dh]>/g,' | ');return d.textContent.replace(/\n{3,}/g,'\n\n');}
+var DL=null;
+try{if(window.claude&&window.claude.use){window.claude.use('downloads').then(function(d){DL=d;},function(){});}}catch(e){}
+$('saveBtn').onclick=function(){save();var html=report();$('printView').innerHTML=html;
+ var dt=new Date(),name='드랍렛탐구_'+(S.group?S.group.replace(/[^0-9A-Za-z가-힣]/g,'')+'_':'')+dt.getFullYear()+('0'+(dt.getMonth()+1)).slice(-2)+('0'+dt.getDate()).slice(-2)+'.html';
+ if(DL){var doc='<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><title>드랍렛 탐구 활동지</title><style>body{font-family:sans-serif;max-width:800px;margin:24px auto;padding:0 16px;line-height:1.6}h2{border-bottom:1px solid #999;margin-top:20px}table{border-collapse:collapse;font-size:13px}th{background:#eee}.pv{white-space:pre-wrap}</style></head><body>'+html+'<p style="color:#666">이 파일을 열고 인쇄에서 ‘PDF로 저장’을 고르세요.</p></body></html>';
+  DL.save({filename:name,data:doc}).then(function(){$('saveMsg').textContent='파일을 받았어요. 열어서 인쇄 → PDF로 저장하세요.';},function(){$('saveMsg').textContent='저장이 취소되었어요. [내용 복사하기]를 써도 돼요.';});return;}
+ try{window.print();$('saveMsg').textContent='인쇄 창에서 ‘PDF로 저장’을 고르세요. 창이 뜨지 않으면 [내용 복사하기]를 쓰세요.';}catch(e){$('saveMsg').textContent='이 화면에서는 인쇄가 막혀 있어요. [내용 복사하기]를 쓰세요.';}};
+$('copyAllBtn').onclick=function(){var ta=$('allText');ta.style.display='block';ta.value=plain();copyBox(ta,'saveMsg');};
+
+/* 처음 열기 */
+buildRadios();buildTables();
+var o=load();if(o){S=o;if(S.step>0)toast('이 기기에 적어 둔 활동지를 이어서 열었어요. 내 것이 아니면 0단계에서 [처음부터 새로 쓰기].');}
+fill();calc();setWho();go(S.step||0);
+})();
+</script>
+</body>
+</html>
